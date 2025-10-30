@@ -1,0 +1,136 @@
+import tkinter as tk
+from tkinter import messagebox
+import random
+
+class ArithmeticQuiz:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Arithmetic Quiz")
+        self.root.geometry("400x300")
+        self.root.configure(bg="#f0f8ff") 
+        self.difficulty = 0
+        self.score = 0
+        self.question_count = 0
+        self.num1 = 0
+        self.num2 = 0
+        self.op = ''
+        self.correct_answer = 0
+        self.attempt = 1
+        self.display_menu()
+
+    def display_menu(self):
+        self.clear_window()
+        frame = tk.Frame(self.root, bg="#f0f8ff")
+        frame.pack(expand=True, fill=tk.BOTH)
+        
+        tk.Label(frame, text="DIFFICULTY LEVEL", font=("Arial", 18, "bold"), bg="#f0f8ff", fg="#000080").pack(pady=20)
+        
+        btn_easy = tk.Button(frame, text="1. Easy", font=("Arial", 14), bg="#90ee90", fg="#000000", command=lambda: self.set_difficulty(1))
+        btn_easy.pack(pady=5, ipadx=20, ipady=5)
+        
+        btn_moderate = tk.Button(frame, text="2. Moderate", font=("Arial", 14), bg="#ffa500", fg="#000000", command=lambda: self.set_difficulty(2))
+        btn_moderate.pack(pady=5, ipadx=20, ipady=5)
+        
+        btn_advanced = tk.Button(frame, text="3. Advanced", font=("Arial", 14), bg="#ff6347", fg="#000000", command=lambda: self.set_difficulty(3))
+        btn_advanced.pack(pady=5, ipadx=20, ipady=5)
+
+    def set_difficulty(self, level):
+        self.difficulty = level
+        self.score = 0
+        self.question_count = 0
+        self.start_quiz()
+
+    def random_int(self):
+        if self.difficulty == 1:
+            return random.randint(1, 9) 
+        elif self.difficulty == 2:
+            return random.randint(10, 99)
+        else:
+            return random.randint(1000, 9999)
+
+    def decide_operation(self):
+        return '+' if random.choice([True, False]) else '-'
+
+    def display_problem(self):
+        self.clear_window()
+        frame = tk.Frame(self.root, bg="#f0f8ff")
+        frame.pack(expand=True, fill=tk.BOTH)
+        
+        self.num1 = self.random_int()
+        self.num2 = self.random_int()
+        self.op = self.decide_operation()
+        
+    
+
+        
+        tk.Label(frame, text=f"{self.num1} {self.op} {self.num2} =", font=("Arial", 16, "bold"), bg="#f0f8ff", fg="#000080").pack(pady=20)
+        
+        self.entry = tk.Entry(frame, font=("Arial", 14), justify="center")
+        self.entry.pack(pady=10, ipadx=10, ipady=5)
+        
+        tk.Button(frame, text="Submit", font=("Arial", 14), bg="#32cd32", fg="#ffffff", command=self.check_answer).pack(pady=10, ipadx=20, ipady=5)
+
+    def check_answer(self):
+        try:
+            user_answer = int(self.entry.get())
+            if user_answer == self.correct_answer:
+                messagebox.showinfo("Result", "You Got It Correct!")
+                if self.attempt == 1:
+                    self.score += 10
+                else:
+                    self.score += 5
+                self.next_question()
+            else:
+                if self.attempt == 1:
+                    messagebox.showerror("Result", "You Got It Incorrect. Try again.")
+                    self.attempt = 2
+                else:
+                    messagebox.showerror("Result", f"Incorrect. The correct answer is {self.correct_answer}")
+                    self.next_question()
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid number.")
+
+    def next_question(self):
+        self.attempt = 1
+        self.question_count += 1
+        if self.question_count < 10:
+            self.display_problem()
+        else:
+            self.display_results()
+
+    def display_results(self):
+        self.clear_window()
+        frame = tk.Frame(self.root, bg="#f0f8ff")
+        frame.pack(expand=True, fill=tk.BOTH)
+        
+        tk.Label(frame, text=f"Your score: {self.score}/100", font=("Arial", 16, "bold"), bg="#f0f8ff", fg="#000080").pack(pady=20)
+        
+        rank = self.get_rank()
+        tk.Label(frame, text=f"Rank: {rank}", font=("Arial", 16, "bold"), bg="#f0f8ff", fg="#008000").pack(pady=10)
+        
+        tk.Button(frame, text="Play Again", font=("Arial", 14), bg="#1e90ff", fg="#ffffff", command=self.display_menu).pack(pady=10, ipadx=20, ipady=5)
+        tk.Button(frame, text="Quit", font=("Arial", 14), bg="#dc143c", fg="#ffffff", command=self.root.quit).pack(pady=5, ipadx=20, ipady=5)
+
+    def get_rank(self):
+        if self.score > 90:
+            return "A+"
+        elif self.score > 80:
+            return "A"
+        elif self.score > 70:
+            return "B"
+        elif self.score > 60:
+            return "C"
+        else:
+            return "F"
+
+    def clear_window(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+    def start_quiz(self):
+        self.display_problem()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ArithmeticQuiz(root)
+    root.mainloop()
